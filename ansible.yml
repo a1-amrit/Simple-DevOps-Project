@@ -1,0 +1,23 @@
+---
+- hosts: local
+  become: true
+
+  tasks:
+  - name: create docker image using war file
+    command: docker build -t {{ JOB_NAME }}:v1.{{ BUILD_ID }} .
+
+  - name: create tag to image
+    command: docker tag {{ JOB_NAME }}:v1.{{ BUILD_ID }} techamrit/{{ JOB_NAME }}:v1.{{ BUILD_ID }}
+  - name: creat latest image
+    command: docker tag {{ JOB_NAME }}:v1.{{ BUILD_ID }} techamrit/{{ JOB_NAME }}:latest 
+
+  - name: push image on to dockerhub
+    command: docker push techamrit/{{ JOB_NAME }}:v1.{{ BUILD_ID }}
+  - name: push image
+    command: docker push techamrit/{{ JOB_NAME }}:latest
+
+  - name: remove docker images form ansible server
+    command: docker rmi techamrit/{{ JOB_NAME }}:v1.{{ BUILD_ID }} techamrit/{{ JOB_NAME }}:latest {{ JOB_NAME }}:v1.{{ BUILD_ID }}
+
+    ignore_errors: yes
+...
